@@ -1,0 +1,48 @@
+
+version: "3.9"
+services:
+  web:
+    build: .
+    ports:
+      - "5000:5000"
+  redis:
+    image: "redis:alpine"
+
+version: "2"
+services:
+  master:
+    image: eeacms/jenkins-master
+    ports:
+    - "80:8080"
+    environment:
+    - JAVA_OPTS=-Xmx2048m
+    volumes:
+    - jenkins-master:/var/jenkins_home
+
+  worker:
+    image: eeacms/jenkins-slave
+    environment:
+      JAVA_OPTS: "-Xmx2048m"
+      JENKINS_MASTER: "http://master:8080"
+      JENKINS_NAME: "worker"
+      JENKINS_USER: "<jenkins_username>"
+      JENKINS_PASS: "<jenkins-password>"
+      JENKINS_RETRY: "10"
+    volumes:
+    - jenkins-worker:/var/jenkins_home/worker
+
+volumes:
+  jenkins-master:
+  jenkins-worker:
+
+
+docker-compose up 
+docker-compose scale worker=3
+docker-compose run web env
+docker-compose ps 
+docker-compose stop
+docker-compose  down --volumes
+
+docker-compose exec api node
+> process.env.NODE_ENV
+'production'

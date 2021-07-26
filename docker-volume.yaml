@@ -1,0 +1,65 @@
+Create a volume and then configure the container to use it:
+
+$ docker volume create hello
+hello
+
+$ docker run -d -v hello:/world busybox ls /world
+
+The mount is created inside the container’s /world directory. Docker does not support relative paths 
+for mount points inside the container.
+
+Multiple containers can use the same volume in the same time period. This is useful if two containers 
+need access to shared data. For example, if one container writes and the other reads the data.
+
+Create and manage volumes
+Unlike a bind mount, you can create and manage volumes outside the scope of any container.
+
+Create a volume:
+
+$ docker volume create my-vol
+List volumes:
+
+$ docker volume ls
+
+local               my-vol
+Inspect a volume:
+
+$ docker volume inspect my-vol
+[
+    {
+        "Driver": "local",
+        "Labels": {},
+        "Mountpoint": "/var/lib/docker/volumes/my-vol/_data",
+        "Name": "my-vol",
+        "Options": {},
+        "Scope": "local"
+    }
+]
+Remove a volume:
+
+$ docker volume rm my-vol
+
+--mount
+
+$ docker run -d \
+  --name devtest \
+  --mount source=myvol2,target=/app \
+  nginx:latest
+
+-v
+$ docker run -d \
+  --name devtest \
+  -v myvol2:/app \
+  nginx:latest
+
+Volumes are easier to back up or migrate than bind mounts.
+You can manage volumes using Docker CLI commands or the Docker API.
+Volumes work on both Linux and Windows containers.
+Volumes can be more safely shared among multiple containers.
+Volume drivers let you store volumes on remote hosts or cloud providers, to encrypt the contents of volumes, 
+or to add other functionality.
+New volumes can have their content pre-populated by a container.
+Volumes on Docker Desktop have much higher performance than bind mounts from Mac and Windows hosts.
+In addition, volumes are often a better choice than persisting data in a container’s writable layer,
+ because a volume does not increase the size of the containers using it, 
+and the volume’s contents exist outside the lifecycle of a given container.
